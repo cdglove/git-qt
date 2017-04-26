@@ -1,0 +1,68 @@
+# *****************************************************************************
+# 
+# CMakeLists.txt
+# 
+# Copyright Chris Glover 2017
+# 
+# Distributed under the Boost Software License, Version 1.0.
+# See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt
+# 
+# *****************************************************************************
+
+cmake_minimum_required(VERSION 3.8)
+
+project(git-qt)
+
+add_subdirectory(contrib/cppgit)
+
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+# Find includes in corresponding build directories, needed
+# to find the automoc'ed files.
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Instruct CMake to run uic automatically when needed.
+#set(CMAKE_AUTOUIC ON)
+
+find_package(Qt5Widgets REQUIRED)
+
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED
+	system
+	filesystem)
+
+set(CMAKE_CXX_STANDARD 14)
+file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
+file(GLOB_RECURSE PROJECT_HEADERS src/*.hpp)
+file(GLOB_RECURSE PROJECT_FORMS "forms/*.ui")
+
+QT5_WRAP_UI(UIS_HDRS ${PROJECT_FORMS})
+
+add_executable(
+	git-qt WIN32 
+	${PROJECT_SOURCES}
+	${PROJECT_HEADERS} 
+	${PROJECT_FORMS} 
+)
+
+target_include_directories(
+	git-qt PRIVATE src 
+)
+
+target_link_libraries(
+	git-qt
+	Qt5::Widgets 
+	Qt5::Core
+	cppgit
+	${Boost_LIBRARIES}
+)
+
+if (WIN32)
+	target_compile_definitions(
+		git-qt PUBLIC
+		_WIN32_WINNT=0x0601
+		WINVER=0x0601
+	)
+endif(WIN32)
