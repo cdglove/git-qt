@@ -20,7 +20,7 @@
 // -----------------------------------------------------------------------------
 //
 namespace Ui {
-class RepoWindow;
+    class RepoWindow;
 }
 
 // -----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ class RepoWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit RepoWindow(cppgit::repository repo, QWidget* parent);
+    RepoWindow(cppgit::repository repo, QWidget* parent);
     ~RepoWindow();
 
 private:

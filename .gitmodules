@@ -1,0 +1,3 @@
+[submodule "contrib/daily/future"]
+	path = contrib/daily/future
+	url = git@github.com:cdglove/daily-future.git

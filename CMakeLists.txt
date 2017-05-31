@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(git-qt)
 
+add_subdirectory(contrib/daily/future)
 add_subdirectory(contrib/cppgit)
 
 # Instruct CMake to run moc automatically when needed.
@@ -30,8 +31,7 @@ find_package(Qt5Widgets REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED
-	system
-	filesystem)
+	timer chrono)
 
 set(CMAKE_CXX_STANDARD 14)
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
@@ -59,10 +59,3 @@ target_link_libraries(
 	${Boost_LIBRARIES}
 )
 
-if (WIN32)
-	target_compile_definitions(
-		git-qt PUBLIC
-		_WIN32_WINNT=0x0601
-		WINVER=0x0601
-	)
-endif(WIN32)

@@ -15,8 +15,13 @@ cmake_minimum_required(VERSION 3.8)
 project(cppgit VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Boost REQUIRED)
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED
+	system
+	filesystem)
+
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
 file(GLOB_RECURSE PROJECT_HEADERS src/*.hpp include/*.hpp)
 
@@ -34,6 +39,12 @@ target_include_directories(
 	cppgit PUBLIC include 
 )
 
+target_link_libraries(
+	cppgit PUBLIC
+	${Boost_LIBRARIES}
+	daily_future
+)
+
 target_include_directories(
 	cppgit PUBLIC
 	${Boost_INCLUDE_DIRS}
@@ -41,8 +52,13 @@ target_include_directories(
 
 if (WIN32)
 	target_compile_definitions(
-		cppgit PRIVATE
+		cppgit PUBLIC
 		_WIN32_WINNT=0x0601
 		WINVER=0x0601
 	)
 endif(WIN32)
+
+target_compile_definitions(
+	cppgit PUBLIC
+	BOOST_THREAD_PROVIDES_FUTURE
+)

@@ -14,9 +14,9 @@
 #define UI_MAINWINDOW_HPP_
 
 #include <QMainWindow>
-#include <QFutureWatcher>
+#include <QDir>
 #include <memory>
-#include "async_ui_task.hpp"
+#include <thread>
 
 // -----------------------------------------------------------------------------
 //
@@ -45,6 +45,7 @@ private slots:
 
 private:
 
+    bool event(QEvent *event) override;
     void openNewRepo(QDir const& where);
 
     std::unique_ptr<Ui::MainWindow> ui;

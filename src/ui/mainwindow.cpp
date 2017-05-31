@@ -11,6 +11,7 @@
 // *****************************************************************************
 #include "ui/mainwindow.hpp"
 #include "ui/repowindow.hpp"
+#include "util/async.hpp"
 #include "ui_mainwindow.h"
 
 #include <boost/utility/string_view.hpp>
@@ -47,11 +48,14 @@ MainWindow::MainWindow()
     : QMainWindow()
     , ui(std::make_unique<Ui::MainWindow>())
 {
+    start_worker_io_service();
     ui->setupUi(this);
 }
 
 MainWindow::~MainWindow()
-{}
+{
+    stop_worker_io_service();
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -145,6 +149,13 @@ void MainWindow::openRepo()
     }   
 }
 
+bool MainWindow::event(QEvent *event)
+{
+    get_ui_io_service().reset();
+    get_ui_io_service().run();
+    return QMainWindow::event(event);
+}
+ 
 void MainWindow::openNewRepo(QDir const& where)
 {
     QWidget* tab = new QWidget();

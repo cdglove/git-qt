@@ -16,6 +16,22 @@
 #include <boost/utility/string_view_fwd.hpp>
 #include <boost/noncopyable.hpp>
 #include <string>
+#include <memory>
+
+// -----------------------------------------------------------------------------
+//
+namespace boost { namespace asio {
+
+    class io_service;
+}}
+
+// -----------------------------------------------------------------------------
+//
+namespace daily { 
+
+    template<typename>
+    class future;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -24,25 +40,35 @@ namespace cppgit {
 struct invalid_repository_exception
 {};
 
+namespace result {
+    class list_files;
+}
+
 class repository
 {
 public:
 
     repository(boost::string_view path);
+    ~repository();
 
     // No copying.
     repository(repository const&) = delete;
     repository& operator=(repository const&) = delete;
 
     // Move OK.
-    repository(repository&&) = default;
-    repository& operator=(repository&&) = default;
+    repository(repository&&);
+    repository& operator=(repository&&);
 
-    void list_files();
+    daily::future<result::list_files> list_files(boost::asio::io_service& ios);
 
 private:
 
-    std::string path_;
+    template<typename>
+    struct git_cmd;
+
+    template<typename Result, typename Handler>
+    std::shared_ptr<git_cmd<Result>> issue_git_cmd(boost::asio::io_service& ios, boost::string_view cmd, Result&& seed_result, Handler&& h);
+    std::wstring path_;
 };
 
 }
