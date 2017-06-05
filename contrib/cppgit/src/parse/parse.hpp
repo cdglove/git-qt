@@ -13,9 +13,16 @@
 #ifndef CPPGIT_PARSE_PARSE_HPP_
 #define CPPGIT_PARSE_PARSE_HPP_
 
-#include "cppgit/result/list_files.hpp"
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/asio/basic_streambuf_fwd.hpp>
+
+// -----------------------------------------------------------------------------
+//
+namespace cppgit { namespace result {
+
+    class ls_files;
+
+}}
 
 // -----------------------------------------------------------------------------
 //
@@ -31,8 +38,35 @@ namespace cppgit { namespace parse
         std::string response;
     };
 
-    void list_files_result(boost::asio::basic_streambuf<> const& result_buffer, result::list_files& result);
+    void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::ls_files& result);
 }}
+
+namespace cppgit { namespace result {
+
+    class ls_files;
+
+    namespace lfs {
+        class ls_files;
+        class lock_status;
+    }
+
+}}
+
+// -----------------------------------------------------------------------------
+//
+namespace cppgit { namespace result { namespace lfs {
+
+    class ls_files;
+    class lock_status;
+
+}}}
+
+// -----------------------------------------------------------------------------
+//
+namespace cppgit { namespace parse { namespace lfs
+{
+    void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::ls_files& result);
+}}}
 
 
 #endif // CPPGIT_PARSE_LISTFILES_HPP_

@@ -17,6 +17,7 @@
 #include <boost/noncopyable.hpp>
 #include <string>
 #include <memory>
+#include <vector>
 
 // -----------------------------------------------------------------------------
 //
@@ -24,6 +25,14 @@ namespace boost { namespace asio {
 
     class io_service;
 }}
+
+// -----------------------------------------------------------------------------
+//
+namespace boost { namespace filesystem {
+
+    class path;
+}}
+
 
 // -----------------------------------------------------------------------------
 //
@@ -41,9 +50,16 @@ struct invalid_repository_exception
 {};
 
 namespace result {
-    class list_files;
+    class ls_files;
 }
 
+namespace result { namespace lfs {
+    class ls_files;
+    class lock_status;
+}}
+
+// -----------------------------------------------------------------------------
+//
 class repository
 {
 public:
@@ -59,7 +75,14 @@ public:
     repository(repository&&);
     repository& operator=(repository&&);
 
-    daily::future<result::list_files> list_files(boost::asio::io_service& ios);
+    daily::future<result::ls_files> get_file_list(
+        boost::asio::io_service& ios);
+
+    daily::future<result::lfs::ls_files> get_lfs_file_list(
+        boost::asio::io_service& ios);
+
+    daily::future<result::lfs::lock_status> get_lfs_lock_status(
+        boost::asio::io_service& ios);
 
 private:
 
@@ -67,8 +90,14 @@ private:
     struct git_cmd;
 
     template<typename Result, typename Handler>
-    std::shared_ptr<git_cmd<Result>> issue_git_cmd(boost::asio::io_service& ios, boost::string_view cmd, Result&& seed_result, Handler&& h);
-    std::wstring path_;
+    std::shared_ptr<git_cmd<Result>> issue_git_cmd(
+        boost::asio::io_service& ios, 
+        std::initializer_list<char const*> params, 
+        Result&& seed_result, 
+        Handler&& h);
+    
+    struct impl;
+    std::unique_ptr<impl> impl_;
 };
 
 }

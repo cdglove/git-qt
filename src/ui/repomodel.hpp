@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 //
 namespace cppgit { namespace result {
-    class list_files;
+    class file_list;
 }}
 
 // -----------------------------------------------------------------------------
@@ -27,7 +27,7 @@ class RepoTreeModel : public QAbstractItemModel
 {
 public:
 
-    RepoTreeModel(cppgit::result::list_files const& files);
+    RepoTreeModel(cppgit::result::file_list const& files);
 
 protected:
 

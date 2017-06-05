@@ -33,10 +33,17 @@ public:
     RepoWindow(cppgit::repository repo, QWidget* parent);
     ~RepoWindow();
 
+public slots:
+
+    void showCustomContextMenu(QPoint const& pos);
+
 private:
+
+    bool eventFilter(QObject *target, QEvent *event) override;
+
     std::unique_ptr<Ui::RepoWindow> ui_;
     cppgit::repository repo_;
-    
+    std::unique_ptr<class RepoTreeModel> tree_model_;
 };
 
 #endif // UI_REPOWINDOW_HPP_

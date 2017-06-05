@@ -1,0 +1,20 @@
+# *****************************************************************************
+# 
+# cppgit/test/CMakeLists.txt
+# 
+# Copyright Chris Glover 2017
+# 
+# Distributed under the Boost Software License, Version 1.0.
+# See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt
+# 
+# *****************************************************************************
+cmake_minimum_required(VERSION 3.8)
+
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED
+	unit_test_framework)
+
+add_executable(cppgit.test.parsers parsers.cpp)
+target_link_libraries(cppgit.test.parsers cppgit ${Boost_LIBRARIES})
+add_test(cppgit.test.parsers cppgit.test.parsers)

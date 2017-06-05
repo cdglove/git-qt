@@ -11,7 +11,6 @@
 # *****************************************************************************
 cmake_minimum_required(VERSION 3.8)
 
-
 project(cppgit VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -56,9 +55,22 @@ if (WIN32)
 		_WIN32_WINNT=0x0601
 		WINVER=0x0601
 	)
+
+	if(MSVC)
+		target_compile_definitions(
+			cppgit PUBLIC
+			_SCL_SECURE_NO_WARNINGS=1
+		)
+	endif()
 endif(WIN32)
 
 target_compile_definitions(
 	cppgit PUBLIC
 	BOOST_THREAD_PROVIDES_FUTURE
 )
+
+option(CPPGIT_BUILD_TESTS "Build the entity project tests." ON)
+if(CPPGIT_BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(test)
+endif()

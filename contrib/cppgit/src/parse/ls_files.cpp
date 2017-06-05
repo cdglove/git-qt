@@ -1,6 +1,6 @@
 // *****************************************************************************
 // 
-// cppgit/parse/list_files.hpp
+// cppgit/parse/file_list.hpp
 //
 // Copyright Chris Glover 2017
 //
@@ -11,13 +11,15 @@
 // *****************************************************************************
 #include "parse.hpp"
 #include "parse_common.hpp"
+#include "cppgit/result/ls_files.hpp"
 #include <boost/spirit/home/x3.hpp>
+#include <boost/filesystem/path.hpp>
 
 // -----------------------------------------------------------------------------
 //
-namespace cppgit { namespace parse
+namespace cppgit { namespace parse 
 {
-    void list_files_result(boost::asio::basic_streambuf<> const& result_buffer, result::list_files& result)
+    void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::ls_files& result)
     {
         boost::asio::streambuf::const_buffers_type bufs = result_buffer.data();
         auto range = extract_iterators(result_buffer); 
@@ -27,14 +29,16 @@ namespace cppgit { namespace parse
         using x3::char_;
         using x3::eol;
 
+        auto file = +(char_ - eol);
+
         bool r = x3::parse(current, range.end(),
             //  Begin grammar
             (
-                (+(char_ - eol)) >> *(eol >> (+(char_ - eol)))
+                (file) >> *(eol >> (file))
             )
             ,
             //  End grammar
-            result.file
+            result.files
         );
 
         if (!r)

@@ -11,11 +11,13 @@
 // *****************************************************************************
 
 #include "repotreemodel.hpp"
-#include "cppgit/result/list_files.hpp"
-#include <boost/unordered/unordered_map.hpp>
+#include "cppgit/result/ls_files.hpp"
+#include "cppgit/result/lfs/ls_files.hpp"
 #include <boost/filesystem/path.hpp>
+#include <boost/unordered/unordered_map.hpp>
 #include <boost/utility/string_view.hpp>
 #include "util/profiler.hpp"
+#include <QMenu>
 
 // -----------------------------------------------------------------------------
 //
@@ -23,16 +25,28 @@ class RepoTreeModel::TreeItem
 {
 public:
 
-    explicit TreeItem(boost::wstring_view file, boost::wstring_view status, TreeItem* parent = nullptr)
-        : parent_(parent)
+    TreeItem()
     {
-        column_data_[0] = QString::fromWCharArray(file.data());
-        column_data_[1] = QString::fromWCharArray(status.data());
+        file_ = QString::fromWCharArray(L"File");
+        status_ = QString::fromWCharArray(L"Status");
     }
 
-    void TreeItem::appendChild(std::unique_ptr<TreeItem> item)
+    explicit TreeItem(boost::filesystem::path path, TreeItem* parent = nullptr)
+        : parent_(parent)
+        , path_(std::move(path))
+    {
+        file_ = QString::fromWCharArray(path_.leaf().c_str());
+        status_ = QString::fromWCharArray(L"Pending");
+    }
+
+    void appendChild(std::unique_ptr<TreeItem> item)
     {
         children_.emplace_back(std::move(item));
+    }
+
+    void set_status(boost::string_view status)
+    {
+        status_ = status.data();
     }
 
     TreeItem* child(int row)
@@ -47,12 +61,19 @@ public:
 
     int columnCount() const
     {
-        return static_cast<int>(column_data_.size());
+        return 2;
     }
 
     QVariant data(int column) const
     {
-        return column_data_[column];
+        switch(column)
+        {
+        case 0: return file_;
+        case 1: return status_;
+        };
+        
+        BOOST_ASSERT(false);
+        return QVariant();
     }
 
     TreeItem* parentItem()
@@ -81,21 +102,46 @@ public:
     }
 
 private:
+    boost::filesystem::path path_;
     std::vector<std::unique_ptr<TreeItem>> children_;
-    std::array<QVariant, 2> column_data_;
+    QVariant file_;
+    QVariant status_;
     TreeItem* parent_;
 };
 
 // -----------------------------------------------------------------------------
 //
-RepoTreeModel::RepoTreeModel(cppgit::result::list_files const& files, QObject *parent)
+RepoTreeModel::RepoTreeModel(cppgit::result::ls_files const& files, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    root_ = std::make_unique<TreeItem>(L"File", L"Status");
+    root_ = std::make_unique<TreeItem>();
+    items_by_path_ = std::make_unique<boost::unordered::unordered_map<boost::filesystem::path, TreeItem*>>();
     create_tree(files);
 }
 
-RepoTreeModel::~RepoTreeModel() = default;
+RepoTreeModel::~RepoTreeModel()
+{
+
+}
+
+void RepoTreeModel::set_lfs_files(cppgit::result::lfs::ls_files const& files)
+{
+    for(auto&& file : files.files)
+    {
+        auto existing_item = items_by_path_->find(file.file);
+        existing_item->second->set_status("Lockable");
+    }
+}
+
+void RepoTreeModel::update_lock_status(cppgit::result::lfs::lock_status const& files)
+{
+
+}
+
+std::unique_ptr<QMenu> RepoTreeModel::create_context_menu(QModelIndex const& item)
+{
+    return nullptr;
+}
 
 int RepoTreeModel::columnCount(QModelIndex const& parent) const
 {
@@ -177,46 +223,56 @@ int RepoTreeModel::rowCount(const QModelIndex &parent) const
     return parent_item->childCount();
 }
 
-void RepoTreeModel::create_tree(cppgit::result::list_files const& files)
+void RepoTreeModel::create_tree(cppgit::result::ls_files const& files)
 {
     DAILY_AUTO_PROFILE_NODE(create_tree);
 
-    boost::unordered::unordered_map<boost::filesystem::path, TreeItem*> items_by_path;
-    items_by_path.insert(std::make_pair(boost::filesystem::path(""), root_.get()));
-    for(auto&& file : files.file)
+    items_by_path_->clear();
+    items_by_path_->insert(std::make_pair(boost::filesystem::path(""), root_.get()));
+
+    for(auto&& file : files.files)
     {
         TreeItem* parent = root_.get();
         boost::filesystem::path file_path(file);
         boost::filesystem::path directory_path = file_path.parent_path();
-        auto directory_item = items_by_path.find(directory_path);
-
+        
         // Find the closest ancestor.
-        auto closest_path = directory_path;
-        auto parent_item = items_by_path.find(closest_path);
-        while(parent_item == items_by_path.end())
-        {
-            closest_path = closest_path.parent_path(); 
-            parent_item = items_by_path.find(closest_path);
-        }
+        auto parent_item = items_by_path_->find(directory_path);
 
-        parent = parent_item->second;
-
-        // Create items for the missing path segments.
-        if(closest_path != directory_path)
+        // Create path to closest ancestor if necessary.
+        if(parent_item == items_by_path_->end())
         {
+            auto closest_path = directory_path;
+            while(parent_item == items_by_path_->end())
+            {
+                closest_path = closest_path.parent_path(); 
+                parent_item = items_by_path_->find(closest_path);
+            } 
+
+            parent = parent_item->second;
+
+            // Create items for the missing path segments.
             auto append = directory_path.begin();
             std::advance(append, std::distance(closest_path.begin(), closest_path.end()));
 
             while(append != directory_path.end())
             {
                 closest_path /= *append;
-                auto child = std::make_unique<TreeItem>(append->c_str(), L"", parent);
-                items_by_path.insert(std::make_pair(closest_path, child.get()));
+                auto child = std::make_unique<TreeItem>(closest_path, parent);
+                auto child_ptr = child.get();
+                items_by_path_->insert(std::make_pair(closest_path, child_ptr));
                 parent->appendChild(std::move(child));
+                parent = child_ptr;
                 ++append;
             }
         }
+        else
+        {
+            parent = parent_item->second;
+        }
 
-        parent->appendChild(std::make_unique<TreeItem>(file_path.filename().c_str(), L"", parent));
+        auto new_item = std::make_unique<TreeItem>(file_path.filename(), parent);
+        items_by_path_->insert({file_path, new_item.get()});
+        parent->appendChild(std::move(new_item));
     }
 }

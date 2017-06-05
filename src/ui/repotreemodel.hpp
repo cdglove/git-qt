@@ -15,12 +15,24 @@
 
 #include <QAbstractItemModel>
 #include <memory>
+#include <boost/unordered/unordered_map_fwd.hpp>
 
 // -----------------------------------------------------------------------------
 //
 namespace cppgit { namespace result {
-    class list_files;
+    class ls_files;
 }}
+
+namespace cppgit { namespace result { namespace lfs {
+    class ls_files;
+    class lock_status;
+}}}
+
+namespace boost { namespace filesystem { 
+    class path;
+}}
+
+class QMenu;
 
 // -----------------------------------------------------------------------------
 //
@@ -28,8 +40,12 @@ class RepoTreeModel : public QAbstractItemModel
 {
 public:
 
-    RepoTreeModel(cppgit::result::list_files const& files, QObject *parent);
+    RepoTreeModel(cppgit::result::ls_files const& files, QObject *parent);
     ~RepoTreeModel();
+
+    void set_lfs_files(cppgit::result::lfs::ls_files const& files);
+    void update_lock_status(cppgit::result::lfs::lock_status const& files);
+    std::unique_ptr<QMenu> create_context_menu(QModelIndex const& item);
 
 protected:
     
@@ -53,7 +69,8 @@ protected:
 private:
 
     class TreeItem;
-    void create_tree(cppgit::result::list_files const& files);
+    void create_tree(cppgit::result::ls_files const& files);
+    std::unique_ptr<boost::unordered::unordered_map<boost::filesystem::path, TreeItem*>> items_by_path_;
     std::unique_ptr<TreeItem> root_;
 };
 

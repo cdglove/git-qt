@@ -30,11 +30,35 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTreeView" name="treeView"/>
+     <widget class="QTreeView" name="treeView">
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>treeView</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>RepoWindow</receiver>
+   <slot>showCustomContextMenu(QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>289</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>showCustomContextMenu(QPoint)</slot>
+ </slots>
 </ui>

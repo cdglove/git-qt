@@ -15,7 +15,7 @@
 
 #include <fstream>
 
-std::ostream& get_profiler_ostream()
+std::ostream& daily::get_profiler_ostream()
 {
     static std::ofstream profout("profile.log");
     return profout;
