@@ -29,6 +29,8 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
 	, ui_(std::make_unique<Ui::RepoWindow>())
     , repo_(std::move(repo))
 {
+    ui_->setupUi(this);
+
     repo_.get_file_list(get_worker_io_service()
     ).then(daily::execute::dispatch, get_worker_executor(), 
         [this](cppgit::result::ls_files files)
@@ -52,10 +54,45 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
 RepoWindow::~RepoWindow()
 {}
 
+struct menu : QMenu
+{
+    using QMenu::QMenu;
+    virtual ~menu()
+    {
+
+    }
+};
+
 void RepoWindow::showCustomContextMenu(QPoint const& pos)
 {
     QModelIndex idx = ui_->treeView->indexAt(pos);
-    tree_model_->create_context_menu(idx);
+    //tree_model_->create_context_menu(idx);
+    QMenu* context_menu = new menu(this);
+    context_menu->addAction(ui_->actionLockFile);
+    context_menu->addAction(ui_->actionUnlockFile);
+    context_menu->addAction(ui_->actionPullFile);
+    context_menu->addAction(ui_->actionDeleteLocalFile);
+    context_menu->popup(ui_->treeView->viewport()->mapToGlobal(pos));
+}
+
+void RepoWindow::deleteLocalFile()
+{
+
+}
+
+void RepoWindow::lockFile()
+{
+
+}
+
+void RepoWindow::unlockFile()
+{
+
+}
+
+void RepoWindow::pullFile()
+{
+
 }
 
 bool RepoWindow::eventFilter(QObject *target, QEvent *event)

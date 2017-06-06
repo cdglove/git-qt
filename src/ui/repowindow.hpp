@@ -33,9 +33,14 @@ public:
     RepoWindow(cppgit::repository repo, QWidget* parent);
     ~RepoWindow();
 
-public slots:
-
+private slots:
+    
+    friend class Ui_RepoWindow;
     void showCustomContextMenu(QPoint const& pos);
+    void deleteLocalFile();
+    void lockFile();
+    void unlockFile();
+    void pullFile();
 
 private:
 

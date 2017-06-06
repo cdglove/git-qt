@@ -38,6 +38,26 @@
     </item>
    </layout>
   </widget>
+  <action name="actionLockFile">
+   <property name="text">
+    <string>Lock File</string>
+   </property>
+  </action>
+  <action name="actionUnlockFile">
+   <property name="text">
+    <string>Unlock File</string>
+   </property>
+  </action>
+  <action name="actionPullFile">
+   <property name="text">
+    <string>Pull File</string>
+   </property>
+  </action>
+  <action name="actionDeleteLocalFile">
+   <property name="text">
+    <string>Delete Local File</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -57,8 +77,76 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionDeleteLocalFile</sender>
+   <signal>triggered()</signal>
+   <receiver>RepoWindow</receiver>
+   <slot>deleteLocalFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLockFile</sender>
+   <signal>triggered()</signal>
+   <receiver>RepoWindow</receiver>
+   <slot>lockFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUnlockFile</sender>
+   <signal>triggered()</signal>
+   <receiver>RepoWindow</receiver>
+   <slot>unlockFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPullFile</sender>
+   <signal>triggered()</signal>
+   <receiver>RepoWindow</receiver>
+   <slot>pullFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>showCustomContextMenu(QPoint)</slot>
+  <slot>deleteLocalFile()</slot>
+  <slot>lockFile()</slot>
+  <slot>unlockFile()</slot>
+  <slot>pullFile()</slot>
  </slots>
 </ui>
