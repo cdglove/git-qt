@@ -14,6 +14,7 @@
 #define UI_REPOWINDOW_HPP_
 
 #include <QWidget>
+#include <QMenu>
 #include <memory>
 #include "cppgit/repository.hpp"
 
@@ -44,10 +45,11 @@ private slots:
 
 private:
 
-    bool eventFilter(QObject *target, QEvent *event) override;
+    void enableAllFileActions();
 
-    std::unique_ptr<Ui::RepoWindow> ui_;
+    QMenu file_context_menu_;
     cppgit::repository repo_;
+    std::unique_ptr<Ui::RepoWindow> ui_;
     std::unique_ptr<class RepoTreeModel> tree_model_;
 };
 

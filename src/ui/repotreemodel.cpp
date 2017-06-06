@@ -138,9 +138,15 @@ void RepoTreeModel::update_lock_status(cppgit::result::lfs::lock_status const& f
 
 }
 
-std::unique_ptr<QMenu> RepoTreeModel::create_context_menu(QModelIndex const& item)
+bool RepoTreeModel::is_file(QModelIndex const& idx)
 {
-    return nullptr;
+    //return static_cast<TreeItem*>(parent.internalPointer())->
+    return false;
+}
+
+boost::filesystem::path RepoTreeModel::get_path(QModelIndex const& idx)
+{
+    return "";
 }
 
 int RepoTreeModel::columnCount(QModelIndex const& parent) const

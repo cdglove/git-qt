@@ -39,8 +39,6 @@ public:
 
 private slots:
 
-    void filterTextChanged(QString const& filter_text);
-    void lfsTreeItemChanged(QTreeWidgetItem* item, int column);
     void openRepo();
 
 private:

@@ -45,7 +45,9 @@ public:
 
     void set_lfs_files(cppgit::result::lfs::ls_files const& files);
     void update_lock_status(cppgit::result::lfs::lock_status const& files);
-    std::unique_ptr<QMenu> create_context_menu(QModelIndex const& item);
+    
+    bool is_file(QModelIndex const& idx);
+    boost::filesystem::path get_path(QModelIndex const& idx);
 
 protected:
     

@@ -31,6 +31,11 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
 {
     ui_->setupUi(this);
 
+    file_context_menu_.addAction(ui_->actionLockFile);
+    file_context_menu_.addAction(ui_->actionUnlockFile);
+    file_context_menu_.addAction(ui_->actionPullFile);
+    file_context_menu_.addAction(ui_->actionDeleteLocalFile);
+
     repo_.get_file_list(get_worker_io_service()
     ).then(daily::execute::dispatch, get_worker_executor(), 
         [this](cppgit::result::ls_files files)
@@ -54,57 +59,41 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
 RepoWindow::~RepoWindow()
 {}
 
-struct menu : QMenu
-{
-    using QMenu::QMenu;
-    virtual ~menu()
-    {
-
-    }
-};
-
 void RepoWindow::showCustomContextMenu(QPoint const& pos)
 {
+    enableAllFileActions();
     QModelIndex idx = ui_->treeView->indexAt(pos);
-    //tree_model_->create_context_menu(idx);
-    QMenu* context_menu = new menu(this);
-    context_menu->addAction(ui_->actionLockFile);
-    context_menu->addAction(ui_->actionUnlockFile);
-    context_menu->addAction(ui_->actionPullFile);
-    context_menu->addAction(ui_->actionDeleteLocalFile);
-    context_menu->popup(ui_->treeView->viewport()->mapToGlobal(pos));
+    if(tree_model_->is_file(idx))
+    {
+        context_idx_ = idx;
+        file_context_menu_.popup(ui_->treeView->viewport()->mapToGlobal(pos));
+    }
 }
 
 void RepoWindow::deleteLocalFile()
 {
-
+    boost::filesystem::path file = tree_model_->get_path(context_idx_);
 }
 
 void RepoWindow::lockFile()
 {
-
+    boost::filesystem::path file = tree_model_->get_path(context_idx_);
 }
 
 void RepoWindow::unlockFile()
 {
-
+    boost::filesystem::path file = tree_model_->get_path(context_idx_);
 }
 
 void RepoWindow::pullFile()
 {
-
+    boost::filesystem::path file = tree_model_->get_path(context_idx_);
 }
 
-bool RepoWindow::eventFilter(QObject *target, QEvent *event)
+void RepoWindow::enableAllFileActions()
 {
-    //if (target == ui_->treeView)
-    //{
-    //    if(event->type() == QEvent::ContextMenu)
-    //    {
-    //        QContextMenuEvent* m = static_cast<QContextMenuEvent*>(event);
-    //        //Create context menu here
-    //        return true;
-    //    }
-    //}
-    return false;
+    ui_->actionLockFile->setEnabled(true);
+    ui_->actionUnlockFile->setEnabled(true);
+    ui_->actionPullFile->setEnabled(true);
+    ui_->actionDeleteLocalFile->setEnabled(true);
 }
