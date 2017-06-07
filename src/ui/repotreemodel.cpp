@@ -17,7 +17,7 @@
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/utility/string_view.hpp>
 #include "util/profiler.hpp"
-#include <QMenu>
+#include <QApplication>
 
 // -----------------------------------------------------------------------------
 //
@@ -25,18 +25,41 @@ class RepoTreeModel::TreeItem
 {
 public:
 
-    TreeItem()
+    enum class Type
     {
-        file_ = QString::fromWCharArray(L"File");
-        status_ = QString::fromWCharArray(L"Status");
+        Directory,
+        File,
+    };
+
+    enum class LfsFlag
+    {
+        NotLfs,
+        IsLfs,
+    };
+
+    enum class LfsStatus
+    {
+        Unlocked,
+        Locked,
+        Held,
+    };
+
+    TreeItem()
+        : parent_(nullptr)
+        , type_(Type::Directory)
+        , lfs_flag_(LfsFlag::NotLfs)
+        , lfs_status_(LfsStatus::Unlocked)
+    {
+        file_ = QApplication::translate("RepoWindow", "File", Q_NULLPTR);
+        status_ = QApplication::translate("RepoWindow", "Status", Q_NULLPTR);
     }
 
-    explicit TreeItem(boost::filesystem::path path, TreeItem* parent = nullptr)
+    explicit TreeItem(boost::filesystem::path path, Type type, TreeItem* parent = nullptr)
         : parent_(parent)
         , path_(std::move(path))
+        , type_(type)
     {
         file_ = QString::fromWCharArray(path_.leaf().c_str());
-        status_ = QString::fromWCharArray(L"Pending");
     }
 
     void appendChild(std::unique_ptr<TreeItem> item)
@@ -44,12 +67,24 @@ public:
         children_.emplace_back(std::move(item));
     }
 
-    void set_status(boost::string_view status)
+    void setIsInLfs()
     {
-        status_ = status.data();
+        lfs_flag_ = LfsFlag::IsLfs;
     }
 
-    TreeItem* child(int row)
+    void setLocked(boost::string_view holder)
+    {
+        lfs_status_ = LfsStatus::Locked;
+        status_ = QApplication::translate("RepoWindow", "File", Q_NULLPTR) + ": " + holder.data();
+    }
+
+    //void setUnlocked()
+    //{
+    //    lfs_status_ = LfsStatus::Unlocked;
+    //    status_ = "";
+    //}
+
+    TreeItem* child(int row) const
     {
         return children_[row].get();
     }
@@ -76,7 +111,7 @@ public:
         return QVariant();
     }
 
-    TreeItem* parentItem()
+    TreeItem* parentItem() const
     {
         return parent_;
     }
@@ -101,12 +136,31 @@ public:
         return 0;
     }
 
+    bool isFile() const
+    {
+        return type_ == Type::File;
+    }
+
+    boost::filesystem::path const& getPath() const
+    {
+        return path_;
+    }
+
+    bool isInLfs() const
+    {
+        return lfs_flag_ == LfsFlag::IsLfs;
+    }
+
+
 private:
     boost::filesystem::path path_;
     std::vector<std::unique_ptr<TreeItem>> children_;
     QVariant file_;
     QVariant status_;
     TreeItem* parent_;
+    Type type_ : 1;
+    LfsFlag lfs_flag_ : 1;
+    LfsStatus lfs_status_ : 2;
 };
 
 // -----------------------------------------------------------------------------
@@ -129,7 +183,7 @@ void RepoTreeModel::set_lfs_files(cppgit::result::lfs::ls_files const& files)
     for(auto&& file : files.files)
     {
         auto existing_item = items_by_path_->find(file.file);
-        existing_item->second->set_status("Lockable");
+        existing_item->second->setIsInLfs();
     }
 }
 
@@ -140,13 +194,12 @@ void RepoTreeModel::update_lock_status(cppgit::result::lfs::lock_status const& f
 
 bool RepoTreeModel::is_file(QModelIndex const& idx)
 {
-    //return static_cast<TreeItem*>(parent.internalPointer())->
-    return false;
+    return static_cast<TreeItem*>(idx.internalPointer())->isFile();
 }
 
 boost::filesystem::path RepoTreeModel::get_path(QModelIndex const& idx)
 {
-    return "";
+    return static_cast<TreeItem*>(idx.internalPointer())->getPath();
 }
 
 int RepoTreeModel::columnCount(QModelIndex const& parent) const
@@ -264,7 +317,7 @@ void RepoTreeModel::create_tree(cppgit::result::ls_files const& files)
             while(append != directory_path.end())
             {
                 closest_path /= *append;
-                auto child = std::make_unique<TreeItem>(closest_path, parent);
+                auto child = std::make_unique<TreeItem>(closest_path, TreeItem::Type::Directory, parent);
                 auto child_ptr = child.get();
                 items_by_path_->insert(std::make_pair(closest_path, child_ptr));
                 parent->appendChild(std::move(child));
@@ -277,7 +330,7 @@ void RepoTreeModel::create_tree(cppgit::result::ls_files const& files)
             parent = parent_item->second;
         }
 
-        auto new_item = std::make_unique<TreeItem>(file_path.filename(), parent);
+        auto new_item = std::make_unique<TreeItem>(file_path.filename(), TreeItem::Type::File, parent);
         items_by_path_->insert({file_path, new_item.get()});
         parent->appendChild(std::move(new_item));
     }

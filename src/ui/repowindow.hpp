@@ -15,6 +15,7 @@
 
 #include <QWidget>
 #include <QMenu>
+#include <QModelIndex>
 #include <memory>
 #include "cppgit/repository.hpp"
 
@@ -48,6 +49,7 @@ private:
     void enableAllFileActions();
 
     QMenu file_context_menu_;
+    QModelIndex context_idx_; 
     cppgit::repository repo_;
     std::unique_ptr<Ui::RepoWindow> ui_;
     std::unique_ptr<class RepoTreeModel> tree_model_;
