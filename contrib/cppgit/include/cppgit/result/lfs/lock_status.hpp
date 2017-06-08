@@ -27,16 +27,10 @@ public:
     struct status
     {
         std::string file;
-        std::string locked_by;
-
-        enum 
-        {
-            unknown,
-            unlocked,
-            locked,
-            held,
-        };
-
+        std::string holder;
+        std::string locked_at;
+        std::uint32_t id = 0;
+        
     };
 
     std::vector<status> files;

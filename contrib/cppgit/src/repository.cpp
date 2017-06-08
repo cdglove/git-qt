@@ -138,12 +138,12 @@ daily::future<result::lfs::ls_files> repository::get_lfs_file_list(boost::asio::
 
 daily::future<result::lfs::lock_status> repository::get_lfs_lock_status(boost::asio::io_service& ios)
 {
-    auto cmd = issue_git_cmd(ios, {"lfs", "ls-files", "--long"}, result::lfs::lock_status(), 
+    auto cmd = issue_git_cmd(ios, {"lfs", "locks"}, result::lfs::lock_status(), 
         [](git_cmd<result::lfs::lock_status>& cmd, result::lfs::lock_status r, boost::system::error_code const& ec, std::size_t size)
         {
             //if(!ec)
             {
-                //parse::lfs::ls_files(cmd.result_buffer, r);
+                parse::lfs::lock_status(cmd.result_buffer, r);
                 cmd.promise.set_value(r);
             }
         }

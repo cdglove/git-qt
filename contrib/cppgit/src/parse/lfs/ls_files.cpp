@@ -1,6 +1,6 @@
 // *****************************************************************************
 // 
-// cppgit/parse/lfs_file_list.hpp
+// cppgit/parse/ls_files.cpp
 //
 // Copyright Chris Glover 2017
 //

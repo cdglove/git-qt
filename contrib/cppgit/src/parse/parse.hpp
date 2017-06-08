@@ -66,6 +66,7 @@ namespace cppgit { namespace result { namespace lfs {
 namespace cppgit { namespace parse { namespace lfs
 {
     void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::ls_files& result);
+    void lock_status(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::lock_status& result);
 }}}
 
 

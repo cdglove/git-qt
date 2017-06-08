@@ -42,6 +42,7 @@ target_link_libraries(
 	cppgit PUBLIC
 	${Boost_LIBRARIES}
 	daily_future
+	json
 )
 
 target_include_directories(

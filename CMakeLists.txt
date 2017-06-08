@@ -14,8 +14,11 @@ cmake_minimum_required(VERSION 3.8)
 
 project(git-qt)
 
+set(Boost_USE_STATIC_LIBS ON)
+
 add_subdirectory(contrib/daily/future)
 add_subdirectory(contrib/cppgit)
+add_subdirectory(contrib/json_spirit)
 
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
@@ -29,7 +32,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
 
-set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED
 	timer chrono)
 
