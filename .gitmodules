@@ -1,3 +1,6 @@
 [submodule "contrib/daily/future"]
 	path = contrib/daily/future
 	url = git@github.com:cdglove/daily-future.git
+[submodule "contrib/json_spirit"]
+	path = contrib/json_spirit
+	url = git@github.com:cdglove/json_spirit.git
