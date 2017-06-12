@@ -15,7 +15,7 @@
 #include "parse/parse.hpp"
 #include "cppgit/result/ls_files.hpp"
 #include "cppgit/result/lfs/ls_files.hpp"
-#include "cppgit/result/lfs/lock_status.hpp"
+#include "cppgit/result/lfs/locks.hpp"
 
 #include "daily/future/future.hpp"
 
@@ -136,14 +136,14 @@ daily::future<result::lfs::ls_files> repository::get_lfs_file_list(boost::asio::
     return cmd->promise.get_future();
 }
 
-daily::future<result::lfs::lock_status> repository::get_lfs_lock_status(boost::asio::io_service& ios)
+daily::future<result::lfs::locks> repository::get_lfs_locks(boost::asio::io_service& ios)
 {
-    auto cmd = issue_git_cmd(ios, {"lfs", "locks"}, result::lfs::lock_status(), 
-        [](git_cmd<result::lfs::lock_status>& cmd, result::lfs::lock_status r, boost::system::error_code const& ec, std::size_t size)
+    auto cmd = issue_git_cmd(ios, {"lfs", "locks", "--json"}, result::lfs::locks(), 
+        [](git_cmd<result::lfs::locks>& cmd, result::lfs::locks r, boost::system::error_code const& ec, std::size_t size)
         {
             //if(!ec)
             {
-                parse::lfs::lock_status(cmd.result_buffer, r);
+                parse::lfs::locks(cmd.result_buffer, r);
                 cmd.promise.set_value(r);
             }
         }

@@ -17,6 +17,7 @@
 #include "util/async.hpp"
 #include "cppgit/result/ls_files.hpp"
 #include "cppgit/result/lfs/ls_files.hpp"
+#include "cppgit/result/lfs/locks.hpp"
 #include <boost/filesystem/path.hpp>
 #include <QEvent>
 #include <QContextMenuEvent>
@@ -50,8 +51,14 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
                 [this](cppgit::result::lfs::ls_files files)
                 {
                     tree_model_->set_lfs_files(files);
+                    repo_.get_lfs_locks(get_worker_io_service()).then(daily::execute::dispatch, get_worker_executor(),
+                        [this](cppgit::result::lfs::locks locks)
+                        {
+                            tree_model_->update_lock_status(locks);
+                        }
+                    );
                 }
-            );
+            );                
         }
     );
 }

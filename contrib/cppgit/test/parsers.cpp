@@ -15,7 +15,7 @@
 #include <boost/asio/streambuf.hpp>
 #include "cppgit/result/ls_files.hpp"
 #include "cppgit/result/lfs/ls_files.hpp"
-//#include "cppgit/result/lfs/ls_files.hpp"
+#include "cppgit/result/lfs/locks.hpp"
 #include "../src/parse/parse.hpp"
 
 BOOST_AUTO_TEST_CASE( parse_ls_files )
@@ -55,4 +55,30 @@ BOOST_AUTO_TEST_CASE( parse_lfs_ls_files )
     BOOST_CHECK(result.files[1].sha1 == "c31243edb4f0540aba85a280dff05b467d2543cca2755600dcec61bd23eae73d");
     BOOST_CHECK(result.files[2].file == "bins/small_2.bin");
     BOOST_CHECK(result.files[2].sha1 == "4cbc90d405f15b73e3148cd521360b3f39ae3466c265ed32c1f14d841263316b");
+}
+
+BOOST_AUTO_TEST_CASE( parse_lfs_locks )
+{
+	char const* test_data = 
+		"["
+            R"({"id":"1397","path":"bins/small_0.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-07T02:40:34Z"},)"
+            R"({"id":"1401","path":"bins/small_1000.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:20:14Z"},)"
+            R"({"id":"1402","path":"bins/small space.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:22:09Z"})"
+        "]"
+	;
+
+    boost::asio::streambuf buf;
+    buf.sputn(test_data, std::strlen(test_data));
+    cppgit::result::lfs::locks result;
+    cppgit::parse::lfs::locks(buf, result);
+
+    BOOST_CHECK(result.files[0].file == "bins/small_0.bin");
+    BOOST_CHECK(result.files[0].id == 1397);
+    BOOST_CHECK(result.files[0].locked_at == "2017-06-07T02:40:34Z");
+    BOOST_CHECK(result.files[1].file == "bins/small_1000.bin");
+    BOOST_CHECK(result.files[1].id == 1401);
+    BOOST_CHECK(result.files[1].locked_at == "2017-06-08T02:20:14Z");
+    BOOST_CHECK(result.files[2].file == "bins/small space.bin");
+    BOOST_CHECK(result.files[2].id == 1402);
+    BOOST_CHECK(result.files[2].locked_at == "2017-06-08T02:22:09Z");
 }

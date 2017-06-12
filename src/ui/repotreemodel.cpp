@@ -13,6 +13,7 @@
 #include "repotreemodel.hpp"
 #include "cppgit/result/ls_files.hpp"
 #include "cppgit/result/lfs/ls_files.hpp"
+#include "cppgit/result/lfs/locks.hpp"
 #include <boost/filesystem/path.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/utility/string_view.hpp>
@@ -187,9 +188,13 @@ void RepoTreeModel::set_lfs_files(cppgit::result::lfs::ls_files const& files)
     }
 }
 
-void RepoTreeModel::update_lock_status(cppgit::result::lfs::lock_status const& files)
+void RepoTreeModel::update_lock_status(cppgit::result::lfs::locks const& files)
 {
-
+    for(auto&& file : files.files)
+    {
+        auto existing_item = items_by_path_->find(file.file);
+        existing_item->second->setLocked(file.holder);
+    }
 }
 
 bool RepoTreeModel::is_file(QModelIndex const& idx)

@@ -55,7 +55,7 @@ namespace result {
 
 namespace result { namespace lfs {
     class ls_files;
-    class lock_status;
+    class locks;
 }}
 
 // -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ public:
     daily::future<result::lfs::ls_files> get_lfs_file_list(
         boost::asio::io_service& ios);
 
-    daily::future<result::lfs::lock_status> get_lfs_lock_status(
+    daily::future<result::lfs::locks> get_lfs_locks(
         boost::asio::io_service& ios);
 
 private:

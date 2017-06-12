@@ -1,6 +1,6 @@
 // *****************************************************************************
 // 
-// cppgit/parse/lfs/lock_status.cpp
+// cppgit/parse/lfs/locks.cpp
 //
 // Copyright Chris Glover 2017
 //
@@ -11,7 +11,7 @@
 // *****************************************************************************
 #include "parse/parse.hpp"
 #include "parse/parse_common.hpp"
-#include "cppgit/result/lfs/lock_status.hpp"
+#include "cppgit/result/lfs/locks.hpp"
 #include "ciere/json/io.hpp"
 #include "ciere/json/value.hpp"
 #include "ciere/json/parser/grammar.hpp"
@@ -21,7 +21,7 @@
 //
 namespace cppgit { namespace parse { namespace lfs 
 {
-    void lock_status(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::ls_files& result)
+    void locks(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::locks& result)
     {
         boost::asio::streambuf::const_buffers_type bufs = result_buffer.data();
         auto range = extract_iterators(result_buffer); 
@@ -34,6 +34,18 @@ namespace cppgit { namespace parse { namespace lfs
         bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, value ); 
 
         if (!r)
-            throw exception("Failed to parse list result", std::string(range.begin(), range.end()));
+            throw exception("Failed to parse lock status result", std::string(range.begin(), range.end()));
+
+        std::for_each(value.begin_array(), value.end_array(),
+            [&result](ciere::json::value const& json_lock)
+            {
+                result::lfs::locks::status lock;
+                lock.id = json_lock["id"].get_as<int>();
+                lock.file = json_lock["path"].get_as<std::string>();
+                lock.locked_at = json_lock["locked_at"].get_as<std::string>();
+                lock.holder = json_lock["owner"]["name"].get_as<std::string>();
+                result.files.push_back(std::move(lock));
+            }
+        );
     }
 }}}

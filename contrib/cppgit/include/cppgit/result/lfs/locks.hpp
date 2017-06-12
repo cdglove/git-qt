@@ -1,6 +1,6 @@
 // *****************************************************************************
 // 
-// cppgit/result/lock_status.hpp
+// cppgit/result/locks.hpp
 //
 // Copyright Chris Glover 2017
 //
@@ -20,7 +20,7 @@
 //
 namespace cppgit { namespace result { namespace lfs {
 
-class lock_status
+class locks
 {
 public:
 
