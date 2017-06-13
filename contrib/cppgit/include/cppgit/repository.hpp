@@ -28,14 +28,6 @@ namespace boost { namespace asio {
 
 // -----------------------------------------------------------------------------
 //
-namespace boost { namespace filesystem {
-
-    class path;
-}}
-
-
-// -----------------------------------------------------------------------------
-//
 namespace daily { 
 
     template<typename>
@@ -56,6 +48,8 @@ namespace result {
 namespace result { namespace lfs {
     class ls_files;
     class locks;
+    class lock;
+    class unlock;
 }}
 
 // -----------------------------------------------------------------------------
@@ -84,6 +78,13 @@ public:
     daily::future<result::lfs::locks> get_lfs_locks(
         boost::asio::io_service& ios);
 
+    daily::future<result::lfs::lock> lock_file(
+        boost::string_view path,
+        boost::asio::io_service& ios);
+
+    daily::future<result::lfs::unlock> unlock_file(
+        boost::string_view path,
+        boost::asio::io_service& ios);
 private:
 
     template<typename>

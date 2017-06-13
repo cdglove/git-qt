@@ -82,3 +82,56 @@ BOOST_AUTO_TEST_CASE( parse_lfs_locks )
     BOOST_CHECK(result.files[2].id == 1402);
     BOOST_CHECK(result.files[2].locked_at == "2017-06-08T02:22:09Z");
 }
+
+BOOST_AUTO_TEST_CASE( parse_lfs_lock )
+{
+#error
+	char const* test_data = 
+		"["
+            R"({"id":"1397","path":"bins/small_0.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-07T02:40:34Z"},)"
+            R"({"id":"1401","path":"bins/small_1000.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:20:14Z"},)"
+            R"({"id":"1402","path":"bins/small space.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:22:09Z"})"
+        "]"
+	;
+
+    boost::asio::streambuf buf;
+    buf.sputn(test_data, std::strlen(test_data));
+    cppgit::result::lfs::locks result;
+    cppgit::parse::lfs::locks(buf, result);
+
+    BOOST_CHECK(result.files[0].file == "bins/small_0.bin");
+    BOOST_CHECK(result.files[0].id == 1397);
+    BOOST_CHECK(result.files[0].locked_at == "2017-06-07T02:40:34Z");
+    BOOST_CHECK(result.files[1].file == "bins/small_1000.bin");
+    BOOST_CHECK(result.files[1].id == 1401);
+    BOOST_CHECK(result.files[1].locked_at == "2017-06-08T02:20:14Z");
+    BOOST_CHECK(result.files[2].file == "bins/small space.bin");
+    BOOST_CHECK(result.files[2].id == 1402);
+    BOOST_CHECK(result.files[2].locked_at == "2017-06-08T02:22:09Z");
+}
+
+BOOST_AUTO_TEST_CASE( parse_lfs_unlock )
+{
+	char const* test_data = 
+		"["
+            R"({"id":"1397","path":"bins/small_0.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-07T02:40:34Z"},)"
+            R"({"id":"1401","path":"bins/small_1000.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:20:14Z"},)"
+            R"({"id":"1402","path":"bins/small space.bin","owner":{"name":"cdglove"},"locked_at":"2017-06-08T02:22:09Z"})"
+        "]"
+	;
+
+    boost::asio::streambuf buf;
+    buf.sputn(test_data, std::strlen(test_data));
+    cppgit::result::lfs::locks result;
+    cppgit::parse::lfs::locks(buf, result);
+
+    BOOST_CHECK(result.files[0].file == "bins/small_0.bin");
+    BOOST_CHECK(result.files[0].id == 1397);
+    BOOST_CHECK(result.files[0].locked_at == "2017-06-07T02:40:34Z");
+    BOOST_CHECK(result.files[1].file == "bins/small_1000.bin");
+    BOOST_CHECK(result.files[1].id == 1401);
+    BOOST_CHECK(result.files[1].locked_at == "2017-06-08T02:20:14Z");
+    BOOST_CHECK(result.files[2].file == "bins/small space.bin");
+    BOOST_CHECK(result.files[2].id == 1402);
+    BOOST_CHECK(result.files[2].locked_at == "2017-06-08T02:22:09Z");
+}

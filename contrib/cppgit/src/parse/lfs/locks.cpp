@@ -34,7 +34,7 @@ namespace cppgit { namespace parse { namespace lfs
         bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, value ); 
 
         if (!r)
-            throw exception("Failed to parse lock status result", std::string(range.begin(), range.end()));
+            throw exception("Failed to parse locks result", std::string(range.begin(), range.end()));
 
         std::for_each(value.begin_array(), value.end_array(),
             [&result](ciere::json::value const& json_lock)
@@ -47,5 +47,44 @@ namespace cppgit { namespace parse { namespace lfs
                 result.files.push_back(std::move(lock));
             }
         );
+    }
+
+    void lock(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::lock& result)
+    {
+        boost::asio::streambuf::const_buffers_type bufs = result_buffer.data();
+        auto range = extract_iterators(result_buffer); 
+        buffer_iterator current = range.begin();
+
+        boost::spirit::ascii::space_type space;
+        ciere::json::parser::grammar<buffer_iterator> grammar; grammar;
+        ciere::json::value json_lock;
+
+        bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, json_lock ); 
+
+        if (!r)
+            throw exception("Failed to parse lock result", std::string(range.begin(), range.end()));
+
+        result.id = json_lock["id"].get_as<int>();
+        result.file = json_lock["path"].get_as<std::string>();
+        result.locked_at = json_lock["locked_at"].get_as<std::string>();
+        result.success = true;
+    }
+
+    void unlock(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::unlock& result)
+    {
+        boost::asio::streambuf::const_buffers_type bufs = result_buffer.data();
+        auto range = extract_iterators(result_buffer); 
+        buffer_iterator current = range.begin();
+
+        boost::spirit::ascii::space_type space;
+        ciere::json::parser::grammar<buffer_iterator> grammar; grammar;
+        ciere::json::value json_lock;
+
+        bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, json_lock ); 
+
+        if (!r)
+            throw exception("Failed to parse unlock result", std::string(range.begin(), range.end()));
+
+        result.success = json_lock["locked"].get_as<bool>();
     }
 }}}

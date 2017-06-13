@@ -76,7 +76,7 @@ public:
     void setLocked(boost::string_view holder)
     {
         lfs_status_ = LfsStatus::Locked;
-        status_ = QApplication::translate("RepoWindow", "File", Q_NULLPTR) + ": " + holder.data();
+        status_ = QApplication::translate("RepoWindow", "Locked", Q_NULLPTR) + ": " + holder.data();
     }
 
     //void setUnlocked()

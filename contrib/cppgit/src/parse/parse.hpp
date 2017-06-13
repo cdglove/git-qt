@@ -41,23 +41,14 @@ namespace cppgit { namespace parse
     void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::ls_files& result);
 }}
 
-namespace cppgit { namespace result {
-
-    class ls_files;
-
-    namespace lfs {
-        class ls_files;
-        class locks;
-    }
-
-}}
-
 // -----------------------------------------------------------------------------
 //
 namespace cppgit { namespace result { namespace lfs {
 
     class ls_files;
     class locks;
+    class lock;
+    class unlock;
 
 }}}
 
@@ -67,6 +58,8 @@ namespace cppgit { namespace parse { namespace lfs
 {
     void ls_files(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::ls_files& result);
     void locks(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::locks& result);
+    void lock(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::lock& result);
+    void unlock(boost::asio::basic_streambuf<> const& result_buffer, result::lfs::unlock& result);
 }}}
 
 

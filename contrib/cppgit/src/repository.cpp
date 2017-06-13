@@ -152,6 +152,38 @@ daily::future<result::lfs::locks> repository::get_lfs_locks(boost::asio::io_serv
     return cmd->promise.get_future();
 }
 
+daily::future<result::lfs::lock> repository::lock_file(boost::string_view path, boost::asio::io_service& ios)
+{
+    auto cmd = issue_git_cmd(ios, {"lfs", "lock", path.data(), "--json"}, result::lfs::lock(), 
+        [](git_cmd<result::lfs::lock>& cmd, result::lfs::lock r, boost::system::error_code const& ec, std::size_t size)
+        {
+            //if(!ec)
+            {
+                parse::lfs::lock(cmd.result_buffer, r);
+                cmd.promise.set_value(r);
+            }
+        }
+    );
+
+    return cmd->promise.get_future();
+}
+
+daily::future<result::lfs::unlock> repository::unlock_file(boost::string_view path, boost::asio::io_service& ios)
+{
+    auto cmd = issue_git_cmd(ios, {"lfs", "unlock", path.data(), "--json"}, result::lfs::unlock(), 
+        [](git_cmd<result::lfs::unlock>& cmd, result::lfs::unlock r, boost::system::error_code const& ec, std::size_t size)
+        {
+            //if(!ec)
+            {
+                parse::lfs::unlock(cmd.result_buffer, r);
+                cmd.promise.set_value(r);
+            }
+        }
+    );
+
+    return cmd->promise.get_future();
+}
+
 template<typename Result, typename Handler>
 std::shared_ptr<
     repository::git_cmd<Result>

@@ -1,6 +1,6 @@
 // *****************************************************************************
 // 
-// cppgit/result/locks.hpp
+// cppgit/result/lfs/locks.hpp
 //
 // Copyright Chris Glover 2017
 //
@@ -10,8 +10,8 @@
 //
 // *****************************************************************************
 #pragma once
-#ifndef CPPGIT_RESULT_LFS_LOCK_STATUS_HPP_
-#define CPPGIT_RESULT_LFS_LOCK_STATUS_HPP_
+#ifndef CPPGIT_RESULT_LFS_LOCKS_HPP_
+#define CPPGIT_RESULT_LFS_LOCKS_HPP_
 
 #include <vector>
 #include <string>
@@ -30,12 +30,29 @@ public:
         std::string holder;
         std::string locked_at;
         std::uint32_t id = 0;
-        
     };
 
     std::vector<status> files;
 };
 
+
+class lock
+{
+public:
+
+    std::string file;
+    std::string locked_at;
+    std::uint32_t id = 0;
+    bool success = false;
+};
+
+class unlock
+{
+public:
+
+    bool success = false;
+};
+
 }}}
 
-#endif // CPPGIT_RESULT_LFS_LOCK_STATUS_HPP_
+#endif // CPPGIT_RESULT_LFS_LOCKS_HPP_
