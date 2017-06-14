@@ -78,13 +78,13 @@ namespace cppgit { namespace parse { namespace lfs
 
         boost::spirit::ascii::space_type space;
         ciere::json::parser::grammar<buffer_iterator> grammar; grammar;
-        ciere::json::value json_lock;
+        ciere::json::value value;
 
-        bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, json_lock ); 
+        bool r = boost::spirit::qi::phrase_parse( current, range.end(), grammar, space, value ); 
 
         if (!r)
             throw exception("Failed to parse unlock result", std::string(range.begin(), range.end()));
 
-        result.success = json_lock["locked"].get_as<bool>();
+        result.success = value["unlocked"].get_as<bool>();
     }
 }}}

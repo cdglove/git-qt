@@ -85,11 +85,23 @@ void RepoWindow::deleteLocalFile()
 void RepoWindow::lockFile()
 {
     boost::filesystem::path file = tree_model_->get_path(context_idx_);
+    repo_.lock_file(file.c_str(), get_worker_io_service()).then(
+        [this](cppgit::result::lfs::lock result)
+        {
+            tree_model_->update_lock_status(result);
+        }
+    );
 }
 
 void RepoWindow::unlockFile()
 {
     boost::filesystem::path file = tree_model_->get_path(context_idx_);
+    repo_.unlock_file(file.c_str(), get_worker_io_service()).then(
+        [this](cppgit::result::lfs::lock result)
+        {
+            tree_model_->update_lock_status(result);
+        }
+    );
 }
 
 void RepoWindow::pullFile()

@@ -26,6 +26,8 @@ namespace cppgit { namespace result {
 namespace cppgit { namespace result { namespace lfs {
     class ls_files;
     class locks;
+    class lock;
+    class unlock;
 }}}
 
 namespace boost { namespace filesystem { 
@@ -45,6 +47,8 @@ public:
 
     void set_lfs_files(cppgit::result::lfs::ls_files const& files);
     void update_lock_status(cppgit::result::lfs::locks const& files);
+    void update_lock_status(cppgit::result::lfs::lock const& file);
+    void update_lock_status(cppgit::result::lfs::unlock const& file);
     
     bool is_file(QModelIndex const& idx);
     boost::filesystem::path get_path(QModelIndex const& idx);

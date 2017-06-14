@@ -79,11 +79,11 @@ public:
         status_ = QApplication::translate("RepoWindow", "Locked", Q_NULLPTR) + ": " + holder.data();
     }
 
-    //void setUnlocked()
-    //{
-    //    lfs_status_ = LfsStatus::Unlocked;
-    //    status_ = "";
-    //}
+    void setUnlocked()
+    {
+        lfs_status_ = LfsStatus::Unlocked;
+        status_ = "";
+    }
 
     TreeItem* child(int row) const
     {
@@ -194,6 +194,24 @@ void RepoTreeModel::update_lock_status(cppgit::result::lfs::locks const& files)
     {
         auto existing_item = items_by_path_->find(file.file);
         existing_item->second->setLocked(file.holder);
+    }
+}
+
+void RepoTreeModel::update_lock_status(cppgit::result::lfs::lock const& file)
+{
+    if(file.success)
+    {
+        auto existing_item = items_by_path_->find(file.file);
+        //existing_item->second->setLocked(this_user_);
+    }
+}
+
+void RepoTreeModel::update_lock_status(cppgit::result::lfs::unlock const& file)
+{
+    if(file.success)
+    {
+        auto existing_item = items_by_path_->find(file.file);
+        existing_item->second->setUnlocked();
     }
 }
 
