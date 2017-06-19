@@ -12,11 +12,12 @@
 
 cmake_minimum_required(VERSION 3.8)
 
-include("contrib/HunterGate/cmake/HunterGate.cmake")
+include("contrib/hunter_gate/cmake/HunterGate.cmake")
 
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.19.14.tar.gz"
     SHA1 "d4216c82be9c273ce2567b35f75356da045b884f"
+    FILEPATH "contrib/hunter_config.cmake"
 )
 
 project(git-qt)

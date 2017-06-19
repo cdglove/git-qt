@@ -1,12 +1,9 @@
 [submodule "contrib/daily/future"]
 	path = contrib/daily/future
 	url = git@github.com:cdglove/daily-future.git
-[submodule "contrib/json_spirit"]
-	path = contrib/json_spirit
-	url = git@github.com:cdglove/json_spirit.git
 [submodule "contrib/boost.nowide"]
 	path = contrib/boost.nowide
 	url = git@github.com:cdglove/nowide.git
-[submodule "contrib/HunterGate"]
-	path = contrib/HunterGate
+[submodule "contrib/hunter_gate"]
+	path = contrib/hunter_gate
 	url = git@github.com:hunter-packages/gate.git
