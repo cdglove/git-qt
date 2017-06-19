@@ -15,12 +15,11 @@ project(cppgit VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#set(Boost_USE_STATIC_LIBS ON)
 hunter_add_package(JsonSpirit)
 find_package(JsonSpirit)
 
 hunter_add_package(Boost COMPONENTS system filesystem)
-find_package(Boost 1.63 EXACT CONFIG REQUIRED system filesystem)
+find_package(Boost CONFIG REQUIRED system filesystem)
 
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
 file(GLOB_RECURSE PROJECT_HEADERS src/*.hpp include/*.hpp)

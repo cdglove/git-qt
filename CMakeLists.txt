@@ -9,18 +9,16 @@
 # http://www.boost.org/LICENSE_1_0.txt
 # 
 # *****************************************************************************
-
 cmake_minimum_required(VERSION 3.8)
 
 include("contrib/hunter_gate/cmake/HunterGate.cmake")
-
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.19.14.tar.gz"
     SHA1 "d4216c82be9c273ce2567b35f75356da045b884f"
-    FILEPATH "contrib/hunter_config.cmake"
+    FILEPATH "${CMAKE_SOURCE_DIR}/cmake/hunter_config.cmake"
 )
 
-project(git-qt)
+project(git-qt VERSION 0.1 LANGUAGES C CXX)
 
 #set(Boost_USE_STATIC_LIBS ON)
 
@@ -37,7 +35,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run uic automatically when needed.
 #set(CMAKE_AUTOUIC ON)
 # doesnt work with vs2017 yet.
-#hunter_add_package(Qt)
+hunter_add_package(Qt)
 find_package(Qt5Widgets REQUIRED)
 
 hunter_add_package(Boost COMPONENTS timer chrono)
