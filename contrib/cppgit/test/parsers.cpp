@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( parse_lfs_unlock )
 
         boost::asio::streambuf buf;
         buf.sputn(test_data, std::strlen(test_data));
-        cppgit::result::lfs::unlock result;
+        cppgit::result::lfs::unlock result("");
         cppgit::parse::lfs::unlock(buf, result);
 
         BOOST_CHECK(result.success);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( parse_lfs_unlock )
 
         boost::asio::streambuf buf;
         buf.sputn(test_data, std::strlen(test_data));
-        cppgit::result::lfs::unlock result;
+        cppgit::result::lfs::unlock result("");
         cppgit::parse::lfs::unlock(buf, result);
 
         BOOST_CHECK(result.success == false);

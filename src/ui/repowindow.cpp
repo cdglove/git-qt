@@ -19,6 +19,7 @@
 #include "cppgit/result/lfs/ls_files.hpp"
 #include "cppgit/result/lfs/locks.hpp"
 #include <boost/filesystem/path.hpp>
+#include <boost/utility/string_view.hpp>
 #include <QEvent>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -79,13 +80,13 @@ void RepoWindow::showCustomContextMenu(QPoint const& pos)
 
 void RepoWindow::deleteLocalFile()
 {
-    boost::filesystem::path file = tree_model_->get_path(context_idx_);
+   boost::string_view file = tree_model_->get_path_view(context_idx_);
 }
 
 void RepoWindow::lockFile()
 {
-    boost::filesystem::path file = tree_model_->get_path(context_idx_);
-    repo_.lock_file(file.c_str(), get_worker_io_service()).then(
+    boost::string_view file = tree_model_->get_path_view(context_idx_);
+    repo_.lock_file(file, get_worker_io_service()).then(
         [this](cppgit::result::lfs::lock result)
         {
             tree_model_->update_lock_status(result);
@@ -95,18 +96,18 @@ void RepoWindow::lockFile()
 
 void RepoWindow::unlockFile()
 {
-    boost::filesystem::path file = tree_model_->get_path(context_idx_);
-    repo_.unlock_file(file.c_str(), get_worker_io_service()).then(
-        [this](cppgit::result::lfs::lock result)
+    boost::string_view file = tree_model_->get_path_view(context_idx_);
+    repo_.unlock_file(file, get_worker_io_service()).then(
+        [this, file](cppgit::result::lfs::unlock result)
         {
-            tree_model_->update_lock_status(result);
+            tree_model_->update_lock_status(file, result);
         }
     );
 }
 
 void RepoWindow::pullFile()
 {
-    boost::filesystem::path file = tree_model_->get_path(context_idx_);
+    boost::string_view file = tree_model_->get_path_view(context_idx_);
 }
 
 void RepoWindow::enableAllFileActions()

@@ -50,6 +50,11 @@ class unlock
 {
 public:
 
+    unlock(std::string path)
+        : file(std::move(path))
+    {}
+
+    std::string file;
     bool success = false;
 };
 

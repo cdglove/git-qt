@@ -15,7 +15,7 @@
 
 #include <QAbstractItemModel>
 #include <memory>
-#include <boost/unordered/unordered_map_fwd.hpp>
+#include <boost/utility/string_view_fwd.hpp>
 
 // -----------------------------------------------------------------------------
 //
@@ -29,10 +29,6 @@ namespace cppgit { namespace result { namespace lfs {
     class lock;
     class unlock;
 }}}
-
-namespace boost { namespace filesystem { 
-    class path;
-}}
 
 class QMenu;
 
@@ -48,10 +44,10 @@ public:
     void set_lfs_files(cppgit::result::lfs::ls_files const& files);
     void update_lock_status(cppgit::result::lfs::locks const& files);
     void update_lock_status(cppgit::result::lfs::lock const& file);
-    void update_lock_status(cppgit::result::lfs::unlock const& file);
+    void update_lock_status(boost::string_view path, cppgit::result::lfs::unlock const& file);
     
     bool is_file(QModelIndex const& idx);
-    boost::filesystem::path get_path(QModelIndex const& idx);
+    boost::string_view get_path_view(QModelIndex const& idx);
 
 protected:
     
@@ -75,9 +71,12 @@ protected:
 private:
 
     class TreeItem;
+    struct Impl;
+
     void create_tree(cppgit::result::ls_files const& files);
-    std::unique_ptr<boost::unordered::unordered_map<boost::filesystem::path, TreeItem*>> items_by_path_;
     std::unique_ptr<TreeItem> root_;
+    std::unique_ptr<Impl> impl_;
+    std::string local_user_;
 };
 
 #endif // UI_REPOTREEMODEL_HPP_

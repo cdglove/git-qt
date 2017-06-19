@@ -11,6 +11,7 @@
 // *****************************************************************************
 
 #include "ui/mainwindow.hpp"
+#include "boost/nowide/integration/filesystem.hpp"
 #include <QApplication>
 
 #if defined(_WIN32) && defined(QT_STATIC)
@@ -19,6 +20,9 @@
 
 int main(int argc, char *argv[])
 {
+    // Make filesystem::path user utf8 encoding.
+    boost::nowide::nowide_filesystem();
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

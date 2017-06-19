@@ -47,6 +47,7 @@ namespace {
           , child(    boost::process::search_path(cppgit::get_git_command().data())
                     , boost::process::args = std::move(params)
                     , boost::process::std_out = result_pipe
+                    , boost::process::std_err = result_pipe
                     , boost::process::start_dir = working_dir.c_str()
                 #if BOOST_PLAT_WINDOWS_DESKTOP
                     , boost::process::windows::hide
@@ -86,7 +87,6 @@ repository::repository(boost::string_view path)
     : impl_(std::make_unique<impl>())
 {
     boost::filesystem::path repo_path(path.data());
-    repo_path /= ".git";
     if(!boost::filesystem::exists(repo_path))
         throw invalid_repository_exception();
 
@@ -170,7 +170,7 @@ daily::future<result::lfs::lock> repository::lock_file(boost::string_view path, 
 
 daily::future<result::lfs::unlock> repository::unlock_file(boost::string_view path, boost::asio::io_service& ios)
 {
-    auto cmd = issue_git_cmd(ios, {"lfs", "unlock", path.data(), "--json"}, result::lfs::unlock(), 
+    auto cmd = issue_git_cmd(ios, {"lfs", "unlock", path.data(), "--json"}, result::lfs::unlock(path.data()), 
         [](git_cmd<result::lfs::unlock>& cmd, result::lfs::unlock r, boost::system::error_code const& ec, std::size_t size)
         {
             //if(!ec)
