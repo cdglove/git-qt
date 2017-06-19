@@ -13,6 +13,7 @@
 #include "ui/mainwindow.hpp"
 #include "boost/nowide/integration/filesystem.hpp"
 #include <QApplication>
+#include <QtCore/QtPlugin>
 
 #if defined(_WIN32) && defined(QT_STATIC)
   Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
