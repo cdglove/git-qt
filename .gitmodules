@@ -4,3 +4,9 @@
 [submodule "contrib/json_spirit"]
 	path = contrib/json_spirit
 	url = git@github.com:cdglove/json_spirit.git
+[submodule "contrib/boost.nowide"]
+	path = contrib/boost.nowide
+	url = git@github.com:cdglove/nowide.git
+[submodule "contrib/HunterGate"]
+	path = contrib/HunterGate
+	url = git@github.com:hunter-packages/gate.git
