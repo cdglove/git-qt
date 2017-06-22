@@ -7,3 +7,6 @@
 [submodule "contrib/hunter_gate"]
 	path = contrib/hunter_gate
 	url = git@github.com:hunter-packages/gate.git
+[submodule "contrib/boost.process"]
+	path = contrib/boost.process
+	url = git@github.com:boostorg/process.git
