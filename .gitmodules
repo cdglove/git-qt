@@ -7,7 +7,3 @@
 [submodule "contrib/hunter_gate"]
 	path = contrib/hunter_gate
 	url = git@github.com:hunter-packages/gate.git
-[submodule "contrib/boost"]
-	path = contrib/boost
-	url = git@github.com:cdglove/boost.git
-	shallow = true
