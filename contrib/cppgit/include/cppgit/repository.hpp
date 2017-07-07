@@ -36,10 +36,15 @@ namespace daily {
 
 // -----------------------------------------------------------------------------
 //
-namespace cppgit {
+namespace cppgit { namespace exception {
 
-struct invalid_repository_exception
+struct invalid_repository
 {};
+
+struct bad_git_cmd
+{};
+
+} // exception {
 
 namespace result {
     class ls_files;

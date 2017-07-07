@@ -27,6 +27,9 @@ struct io_service_executor
         : service_(service)
     {}
 
+    io_service_executor(io_service_executor const&) = default;
+    io_service_executor(io_service_executor&&) = default;
+
     io_service_executor& get_executor()
     {
         return *this;
@@ -47,7 +50,8 @@ struct io_service_executor
     template<typename Handler, typename Allocator>
     auto defer(Handler&& handler, Allocator&&)
     {
-        return service_.defer(std::forward<Handler>(handler));
+        // io_service doesn't have a defer, so we call post again.
+        return service_.post(std::forward<Handler>(handler));
     }
 };
 

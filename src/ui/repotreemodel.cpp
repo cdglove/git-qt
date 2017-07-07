@@ -32,19 +32,19 @@ public:
 
     enum class Type : std::uint8_t
     {
-        Directory,
+        Directory = 0,
         File,
     };
 
     enum class LfsFlag : std::uint8_t
     {
-        NotLfs,
+        NotLfs = 0,
         IsLfs,
     };
 
     enum class LfsStatus : std::uint8_t
     {
-        Unlocked,
+        Unlocked = 0,
         Locked,
         Held,
     };

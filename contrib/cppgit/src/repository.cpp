@@ -88,10 +88,10 @@ repository::repository(boost::string_view path)
 {
     boost::filesystem::path repo_path(path.data());
     if(!boost::filesystem::exists(repo_path))
-        throw invalid_repository_exception();
+        throw exception::invalid_repository();
 
     if(!boost::filesystem::is_directory(repo_path))
-        throw invalid_repository_exception();
+        throw exception::invalid_repository();
 
     impl_->path = std::move(repo_path);
 }
@@ -106,14 +106,17 @@ repository& repository::operator=(repository&&) = default;
 //
 daily::future<result::ls_files> repository::get_file_list(boost::asio::io_service& ios)
 {
-    auto cmd = issue_git_cmd(ios, {"ls-files"}, result::ls_files(),
+    auto cmd = issue_git_cmd(ios, {"ls-fles"}, result::ls_files(),
         [](git_cmd<result::ls_files>& cmd, result::ls_files r, boost::system::error_code const& ec, std::size_t size)
-        { 
-            //if(!ec)
-            {
-                parse::ls_files(cmd.result_buffer, r);
-                cmd.promise.set_value(r);
-            }
+        {
+            if(cmd.child.exit_code())
+                throw exception::bad_git_cmd();
+
+            if(ec && ec != boost::asio::error::broken_pipe)
+                throw exception::bad_git_cmd();
+
+            parse::ls_files(cmd.result_buffer, r);
+            cmd.promise.set_value(r);
         }
     );
 
@@ -125,11 +128,14 @@ daily::future<result::lfs::ls_files> repository::get_lfs_file_list(boost::asio::
     auto cmd = issue_git_cmd(ios, {"lfs", "ls-files", "--long"}, result::lfs::ls_files(), 
         [](git_cmd<result::lfs::ls_files>& cmd, result::lfs::ls_files r, boost::system::error_code const& ec, std::size_t size)
         {
-            //if(!ec)
-            {
-                parse::lfs::ls_files(cmd.result_buffer, r);
-                cmd.promise.set_value(r);
-            }
+           if(cmd.child.exit_code())
+                throw exception::bad_git_cmd();
+
+            if(ec && ec != boost::asio::error::broken_pipe)
+                throw exception::bad_git_cmd();
+
+            parse::lfs::ls_files(cmd.result_buffer, r);
+            cmd.promise.set_value(r);
         }
     );
 
@@ -141,11 +147,14 @@ daily::future<result::lfs::locks> repository::get_lfs_locks(boost::asio::io_serv
     auto cmd = issue_git_cmd(ios, {"lfs", "locks", "--json"}, result::lfs::locks(), 
         [](git_cmd<result::lfs::locks>& cmd, result::lfs::locks r, boost::system::error_code const& ec, std::size_t size)
         {
-            //if(!ec)
-            {
-                parse::lfs::locks(cmd.result_buffer, r);
-                cmd.promise.set_value(r);
-            }
+           if(cmd.child.exit_code())
+                throw exception::bad_git_cmd();
+
+            if(ec && ec != boost::asio::error::broken_pipe)
+                throw exception::bad_git_cmd();
+
+            parse::lfs::locks(cmd.result_buffer, r);
+            cmd.promise.set_value(r);
         }
     );
 
@@ -157,11 +166,14 @@ daily::future<result::lfs::lock> repository::lock_file(boost::string_view path, 
     auto cmd = issue_git_cmd(ios, {"lfs", "lock", path.data(), "--json"}, result::lfs::lock(), 
         [](git_cmd<result::lfs::lock>& cmd, result::lfs::lock r, boost::system::error_code const& ec, std::size_t size)
         {
-            //if(!ec)
-            {
-                parse::lfs::lock(cmd.result_buffer, r);
-                cmd.promise.set_value(r);
-            }
+            if(cmd.child.exit_code())
+                throw exception::bad_git_cmd();
+
+            if(ec && ec != boost::asio::error::broken_pipe)
+                throw exception::bad_git_cmd();
+            
+            parse::lfs::lock(cmd.result_buffer, r);
+            cmd.promise.set_value(r);
         }
     );
 
@@ -173,11 +185,14 @@ daily::future<result::lfs::unlock> repository::unlock_file(boost::string_view pa
     auto cmd = issue_git_cmd(ios, {"lfs", "unlock", path.data(), "--json"}, result::lfs::unlock(path.data()), 
         [](git_cmd<result::lfs::unlock>& cmd, result::lfs::unlock r, boost::system::error_code const& ec, std::size_t size)
         {
-            //if(!ec)
-            {
-                parse::lfs::unlock(cmd.result_buffer, r);
-                cmd.promise.set_value(r);
-            }
+            if(cmd.child.exit_code())
+                throw exception::bad_git_cmd();
+
+            if(ec && ec != boost::asio::error::broken_pipe)
+                throw exception::bad_git_cmd();
+            
+            parse::lfs::unlock(cmd.result_buffer, r);
+            cmd.promise.set_value(r);
         }
     );
 
@@ -196,9 +211,19 @@ std::shared_ptr<
     boost::asio::async_read(
         cmd->result_pipe, 
         cmd->result_buffer,
+        boost::asio::transfer_all(),
         [cmd, h = std::forward<Handler>(h), r = std::forward<Result>(seed_result)](const boost::system::error_code &ec, std::size_t size)
         { 
-            h(*cmd, std::move(r), ec, size);
+            // So we know the status code is updated.
+            cmd->child.wait();
+            try
+            {
+                h(*cmd, std::move(r), ec, size);
+            }
+            catch(...)
+            {
+                cmd->promise.set_exception(std::current_exception());     
+            }
         }
     );
 

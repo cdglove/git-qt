@@ -48,7 +48,7 @@ RepoWindow::RepoWindow(cppgit::repository repo, QWidget *parent)
         [this]
         {
             ui_->treeView->setModel(tree_model_.get()); 
-            repo_.get_lfs_file_list(get_worker_io_service()).then(daily::execute::dispatch, get_worker_executor(),
+            repo_.get_lfs_file_list(get_worker_io_service()).then(daily::execute::dispatch, get_ui_executor(),
                 [this](cppgit::result::lfs::ls_files files)
                 {
                     tree_model_->set_lfs_files(files);
