@@ -19,15 +19,19 @@ hunter_add_package(JsonSpirit)
 find_package(JsonSpirit)
 
 hunter_add_package(Boost COMPONENTS system filesystem)
-find_package(Boost CONFIG REQUIRED system filesystem)
+find_package(Boost REQUIRED system filesystem)
 
-file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS src/*.hpp include/*.hpp)
+file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp src/*.hpp)
+file(GLOB_RECURSE PROJECT_HEADERS include/*.hpp)
+
+list(APPEND ALL_SOURCES ${PROJECT_SOURCES})
+list(APPEND ALL_SOURCES ${PROJECT_HEADERS})
+
+source_group(TREE "${PROJECT_SOURCE_DIR}" FILES ${ALL_SOURCES})
 
 add_library(
 	cppgit
-	${PROJECT_SOURCES}
-	${PROJECT_HEADERS} 
+	${ALL_SOURCES}
 )
 
 target_include_directories(
